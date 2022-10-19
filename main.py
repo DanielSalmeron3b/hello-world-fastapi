@@ -6,7 +6,7 @@ from urllib import response # <- para enumerar strings
 # Pydantic
 from pydantic import BaseModel, AnyUrl, PastDate, EmailStr, Field
 # FastAPI
-from fastapi import FastAPI, Body, Query, Path
+from fastapi import FastAPI, Body, Query, Path, status
 
 app = FastAPI()
 
@@ -91,22 +91,11 @@ class Person(BaseModel):
         example="12345678"
         )
 
-    # class Config:
-    #     schema_extra = {
-    #         "example": {
-    #             "first_name": "Daniel",
-    #             "last_name": "Salmerón Alvarado",
-    #             "age": 19,
-    #             "hair_color": "black",
-    #             "is_married": False,
-    #             "personal_website": "https://google.com/",
-    #             "date_of_birth": "2000-01-01",
-    #             "email": "mail@salmeron.com",
-    #         }
-    #     }
 
-
-@app.get("/") # <- path operation decorator
+@app.get(
+    "/", 
+    status_code=status.HTTP_200_OK
+    ) # <- path operation decorator
 def home():
     return {"Hello": "World!"}
 
@@ -114,15 +103,20 @@ def home():
 # - Cómo se envía un request body a una API -
 
 @app.post(
-    "/person/new", 
+    path="/person/new", 
     response_model=Person,
-    response_model_exclude={'password'})
+    response_model_exclude={'password'},
+    status_code=status.HTTP_201_CREATED
+    )
 def create_person(person: Person = Body(...)):
     return person
 
 # Validations: Query Parameters
 
-@app.get("/person/detail")
+@app.get(
+    path="/person/detail",
+    status_code=status.HTTP_200_OK,
+    )
 def show_person(
     name: Optional[str] = Query(
         None, 
@@ -143,7 +137,10 @@ def show_person(
 
 # Validations: Path Parameters
 
-@app.get("/person/detail/{person_id}")
+@app.get(
+    path="/person/detail/{person_id}",
+    status_code=status.HTTP_200_OK,
+    )
 def show_person(
     person_id: int = Path(
         ...,
@@ -157,7 +154,10 @@ def show_person(
 
 # Validations: Request Body
 
-@app.put("/person/{person_id}")
+@app.put(
+    path="/person/{person_id}",
+    status_code=status.HTTP_200_OK
+    )
 def update_person(
     person_id: int = Path(
         ...,
