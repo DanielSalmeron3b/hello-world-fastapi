@@ -1,12 +1,11 @@
 # Python
-from doctest import Example
+from email import message
 from typing import Optional # <- para tipado estático
-from enum import Enum
-from urllib import response # <- para enumerar strings
+from enum import Enum # <- para enumerar strings
 # Pydantic
 from pydantic import BaseModel, AnyUrl, PastDate, EmailStr, Field
 # FastAPI
-from fastapi import FastAPI, Body, Query, Path, status
+from fastapi import FastAPI, Body, Query, Path, status, Form
 
 app = FastAPI()
 
@@ -91,6 +90,13 @@ class Person(BaseModel):
         example="12345678"
         )
 
+class LoginOut(BaseModel):
+    username: str = Field(
+        ...,
+        max_length=20,
+        example="salmeron_dev",
+    )
+
 
 @app.get(
     "/", 
@@ -172,3 +178,16 @@ def update_person(
     results = dict(person)
     results.update(dict(location))
     return results
+
+# Forms
+
+@app.post(
+    path="/login",
+    response_model=LoginOut,
+    status_code=status.HTTP_200_OK,
+)
+def login(
+    username: str = Form(...),
+    password: str = Form(...),
+):
+    return LoginOut(username=username)
