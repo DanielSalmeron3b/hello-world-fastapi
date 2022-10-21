@@ -1,11 +1,11 @@
 # Python
-from email import message
+from email.policy import default
 from typing import Optional # <- para tipado estático
 from enum import Enum # <- para enumerar strings
 # Pydantic
 from pydantic import BaseModel, AnyUrl, PastDate, EmailStr, Field
 # FastAPI
-from fastapi import FastAPI, Body, Query, Path, status, Form
+from fastapi import FastAPI, Body, Query, Path, status, Form, Header, Cookie
 
 app = FastAPI()
 
@@ -191,3 +191,33 @@ def login(
     password: str = Form(...),
 ):
     return LoginOut(username=username)
+
+# Cookies and Headers Parameters
+
+@app.post(
+    path="/contact",
+    status_code=status.HTTP_200_OK,
+)
+def contact(
+    first_name: str = Form(
+        ...,
+        max_length=20,
+        min_length=1,
+    ),
+    last_name: str = Form(
+        ...,
+        max_length=20,
+        min_length=1,
+    ),
+    email: EmailStr = Form(...),
+    message: str = Form(
+        ...,
+        min_length=20,
+        max_length=400,
+    ),
+    # Headers
+    user_agent: Optional[str] = Header(default=None),
+    # Cookies
+    ads: Optional[str] = Cookie(default=None),
+):
+    return user_agent
