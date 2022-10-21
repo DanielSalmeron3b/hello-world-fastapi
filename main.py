@@ -1,11 +1,10 @@
 # Python
-from email.policy import default
-from typing import Optional # <- para tipado estático
+from typing import Optional, List # <- para tipado estático y para listas
 from enum import Enum # <- para enumerar strings
 # Pydantic
 from pydantic import BaseModel, AnyUrl, PastDate, EmailStr, Field
 # FastAPI
-from fastapi import FastAPI, Body, Query, Path, status, Form, Header, Cookie
+from fastapi import FastAPI, Body, Query, Path, status, Form, Header, Cookie, UploadFile, File
 
 app = FastAPI()
 
@@ -221,3 +220,19 @@ def contact(
     ads: Optional[str] = Cookie(default=None),
 ):
     return user_agent
+
+# Files
+@app.post(
+    path="/post-image",
+)
+def post_image(
+    images: List[UploadFile] = File(...),
+):
+    # List comprehension to upload multiple files
+    info_images = [{
+        "filename": image.filename,
+        "Format": image.content_type,
+        "Size(kb)": round(len(image.file.read())/1024, ndigits=2)
+    } for image in images ]
+    
+    return info_images
