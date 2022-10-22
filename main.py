@@ -2,9 +2,17 @@
 from typing import Optional, List # <- para tipado estático y para listas
 from enum import Enum # <- para enumerar strings
 # Pydantic
-from pydantic import BaseModel, AnyUrl, PastDate, EmailStr, Field
+from pydantic import (
+    BaseModel, AnyUrl, PastDate, 
+    EmailStr, Field
+    )
 # FastAPI
-from fastapi import FastAPI, Body, Query, Path, status, Form, Header, Cookie, UploadFile, File
+from fastapi import (
+    FastAPI, Body, Query, 
+    Path, status, Form, 
+    Header, Cookie, UploadFile, 
+    File, HTTPException
+    )
 
 app = FastAPI()
 
@@ -142,6 +150,8 @@ def show_person(
 
 # Validations: Path Parameters
 
+persons = [1, 2, 3, 4, 5]
+
 @app.get(
     path="/person/detail/{person_id}",
     status_code=status.HTTP_200_OK,
@@ -155,6 +165,12 @@ def show_person(
         example=123
         )
 ):
+    if person_id not in persons:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This person does not exist :("
+        )
+    
     return {person_id: "This person exists!"}
 
 # Validations: Request Body
@@ -234,5 +250,5 @@ def post_image(
         "Format": image.content_type,
         "Size(kb)": round(len(image.file.read())/1024, ndigits=2)
     } for image in images ]
-    
+
     return info_images
