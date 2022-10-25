@@ -111,6 +111,11 @@ class LoginOut(BaseModel):
     tags=["Home"]
     ) # <- path operation decorator
 def home():
+    """
+    Home page
+
+    Just returns a Hello world in JSON format.
+    """
     return {"Hello": "World!"}
 
 # Request and Response Body
@@ -121,9 +126,22 @@ def home():
     response_model=Person,
     response_model_exclude={'password'},
     status_code=status.HTTP_201_CREATED,
-    tags=["Persons"]
+    tags=["Persons"],
+    summary="Create person in the app",
     )
 def create_person(person: Person = Body(...)):
+    """
+    Create person
+    
+    This path operation creates a person in the app
+    and saves the information in the database.
+    
+    Parameters:
+    - Request body parameter:
+        - **person: Person** -> A person model with first name, last name, age, hair color, marital status, personal website, date of birth, email and password
+    
+    Returns a person model with first name, last name, age, hair color, marital status, personal website, date of birth and email
+    """
     return person
 
 # Validations: Query Parameters
@@ -169,6 +187,19 @@ def show_person(
         example=123
         )
 ):
+    """
+    Show persons details
+    
+    This path operation shows the details of a person.
+    If the person_id is not registered in the database,
+    the function will raise a 404 error.
+    
+    Parameters:
+    - Request body parameter:
+        - **/person/detail/{person_id}** -> The person id to show it's details
+    
+    Returns a message that says This person exists or not.
+    """
     if person_id not in persons:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -185,6 +216,7 @@ def show_person(
     tags=["Persons"]
     )
 def update_person(
+    
     person_id: int = Path(
         ...,
         gt=0,
@@ -195,6 +227,16 @@ def update_person(
     person: Person = Body(...),
     location: Location = Body(...),
 ):
+    """
+    Update person
+    
+    This path operation is for updating a person information.
+    
+    Parameters:
+    - **person_id: int** -> A person id to update.
+    
+    Returns the results of the update.
+    """
     results = dict(person)
     results.update(dict(location))
     return results
